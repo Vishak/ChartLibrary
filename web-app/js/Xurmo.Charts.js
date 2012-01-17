@@ -1,10 +1,8 @@
-//var TURFINSIGHT = TURFINSIGHT || {}
-//TURFINSIGHT.Chart = TURFINSIGHT.Chart || {}
-
-var TURF_INSIGHT_CHART = {}
+var TURFINSIGHT = TURFINSIGHT || {}
+TURFINSIGHT.Chart = TURFINSIGHT.Chart || {}
 var jsMap = new TURF.Util.KeyValueStore();
 
-TURF_INSIGHT_CHART.Flot = function() {
+TURFINSIGHT.Chart.Flot = function() {
 	this.type = 'Flot'
 	this.plotMethod = $.plot
 
@@ -48,7 +46,7 @@ TURF_INSIGHT_CHART.Flot = function() {
 
 }
 
-TURF_INSIGHT_CHART.JqPlot = function() {
+TURFINSIGHT.Chart.JqPlot = function() {
 	this.type = 'JqPlot'
 	this.plotMethod = jQuery.jqplot
 	this.draw = function(chart) {
@@ -60,26 +58,26 @@ TURF_INSIGHT_CHART.JqPlot = function() {
 
 }
 
-TURF_INSIGHT_CHART.ChartFactory = function() {
+TURFINSIGHT.Chart.ChartFactory = function() {
 
 }
 
-TURF_INSIGHT_CHART.ChartFactory.getInstance = function() {
-	if (!TURF_INSIGHT_CHART.ChartFactory.instance) {
+TURFINSIGHT.Chart.ChartFactory.getInstance = function() {
+	if (!TURFINSIGHT.Chart.ChartFactory.instance) {
 		var library = 'flot'
 		switch (library) {
 		case 'flot':
-			TURF_INSIGHT_CHART.ChartFactory.instance = new TURF_INSIGHT_CHART.Flot();
+			TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.Flot();
 			break;
 		case 'jqPlot':
-			TURF_INSIGHT_CHART.ChartFactory.instance = new TURF_INSIGHT_CHART.JqPlot();
+			TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.JqPlot();
 			break;
 		}this
 	}
-	return TURF_INSIGHT_CHART.ChartFactory.instance;
+	return TURFINSIGHT.Chart.ChartFactory.instance;
 }
 
-TURF_INSIGHT_CHART.isAllNumbers = function(list){
+TURFINSIGHT.Chart.isAllNumbers = function(list){
 	var result = true
 	for(i=0;i<list.length;i++){
 		if(isNaN(list[i])){
@@ -90,7 +88,7 @@ TURF_INSIGHT_CHART.isAllNumbers = function(list){
 	return result
 }
 
-TURF_INSIGHT_CHART.isAllText = function(list){
+TURFINSIGHT.Chart.isAllText = function(list){
 	var result = true
 	for(i=0;i<list.length;i++){
 		if(!isNaN(list[i])){
@@ -101,7 +99,7 @@ TURF_INSIGHT_CHART.isAllText = function(list){
 	return result
 }
 
-TURF_INSIGHT_CHART.getFrequencyOfColoumnElements = function(list){
+TURFINSIGHT.Chart.getFrequencyOfColoumnElements = function(list){
 	jsMap.clear()
 	for(i=0;i<list.length;i++){
 		 if(jsMap.get(list[i])!=null){
@@ -113,9 +111,16 @@ TURF_INSIGHT_CHART.getFrequencyOfColoumnElements = function(list){
 	return jsMap
 }
 
-TURF_INSIGHT_CHART.PieChart = function() {
+TURFINSIGHT.Chart.mergeSingleDimArrays = function(array1,array2){
+	var mergedArray = []
+	mergedArray.push(array1)
+	mergedArray.push(array2)
+	return mergedArray
+}
 
-	this.success = 1;
+TURFINSIGHT.Chart.PieChart = function() {
+
+	this.success = true;
 	this.data = []
 	
 	this.setTargetDiv = function(targetDiv) {
@@ -125,36 +130,51 @@ TURF_INSIGHT_CHART.PieChart = function() {
 	this.setData = function(data) {
 		this.data = []
 		if(data.length==1){
-			var isAllNumbers = TURF_INSIGHT_CHART.isAllNumbers(data[0])
-			if(isAllNumbers==true){
-					this.data[0] = data[0]
-					this.data[1] = data[0]
-			} else {
-				  var freqMap = TURF_INSIGHT_CHART.getFrequencyOfColoumnElements(data[0])
-				  var freq = []
-				  var legends = freqMap.keys()
-				  $.each(legends,function(index,value){
-					  freq.push(jsMap.get(value))
-				  });
-				  this.data[0] = legends
-				  this.data[1] = freq
-				}	
+		this.data = processDataWithOneColoumn(data[0])	
+		} else if(data.length==2){
+		this.data = processDataWithTwoColoumns(data[0],data[1])
 		} else {
 		this.data = data;
 		}
 	}
 
+	var processDataWithOneColoumn = function(coloumn){
+		var resultData = []
+		var isAllNumbers = TURFINSIGHT.Chart.isAllNumbers(coloumn)
+		if(isAllNumbers==true){
+			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(coloumn,coloumn)
+		} else {
+			  var freqMap = TURFINSIGHT.Chart.getFrequencyOfColoumnElements(coloumn)
+			  var freq = []
+			  var legends = freqMap.keys()
+			  $.each(legends,function(index,value){
+				  freq.push(jsMap.get(value))
+			  });
+			  resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(legends,freq)
+			}
+		return resultData
+	}
+	
+	var processDataWithTwoColoumns = function(coloumn1,coloumn2){
+		if(TURFINSIGHT.Chart.isAllNumbers(coloumn2)){
+			return TURFINSIGHT.Chart.mergeSingleDimArrays(coloumn1,coloumn2)
+		} else if(TURFINSIGHT.Chart.isAllNumbers(coloumn1)){
+			return TURFINSIGHT.Chart.mergeSingleDimArrays(coloumn2,coloumn1)
+		} else {
+			return null
+		}
+	}
 	this.setLegendAndValues = function(legend,values){
 		this.legend = legend;
 		this.values = values;
 		this.data[0] = legend
 		this.data[1] = values
 		if(values.length!=legend.length){
-		this.success = 0; 
+		this.success = false; 
 		}
 		for(i=0;i<values.length;i++){
 		  if(isNaN(values[i])){
-		  this.success = 0; 
+		  this.success = false; 
 		  }
 		}
 	}
@@ -174,14 +194,14 @@ TURF_INSIGHT_CHART.PieChart = function() {
 			this.setOptions(options)	
 		}
 		if(this.targetDiv!=undefined && this.data!=undefined && this.options!=undefined){
-		TURF_INSIGHT_CHART.ChartFactory.getInstance().drawPieChart(this)
+		TURFINSIGHT.Chart.ChartFactory.getInstance().drawPieChart(this)
 	  }
 	}
 
 }
 
 var testDrawPieChartByFlot = function() {
-	var pieChart = new TURF_INSIGHT_CHART.PieChart();
+	var pieChart = new TURFINSIGHT.Chart.PieChart();
 
 	pieChart.setTargetDiv("graph1")
 
@@ -208,7 +228,7 @@ var testDrawPieChartByFlot = function() {
 
 var testDrawPieChartByJqPlot = function() {
 
-	var pieChart = new TURF_INSIGHT_CHART.PieChart();
+	var pieChart = new TURFINSIGHT.Chart.PieChart();
 
 	pieChart.setTargetDiv("graph1")
 
