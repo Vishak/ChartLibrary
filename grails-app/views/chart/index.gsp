@@ -13,7 +13,8 @@
     <script type="text/javascript" src="${resource(dir:'js', file:'Xurmo.Charts.js')}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-testDrawPieChartByFlot();
+testDrawLineChartByFlot();
+//testDrawPieChartByFlot();
 });
 </script>
 	<style type="text/css">
