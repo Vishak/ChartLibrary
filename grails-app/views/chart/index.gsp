@@ -15,6 +15,7 @@
 $(document).ready(function(){
 testDrawLineChartByFlot();
 //testDrawPieChartByFlot();
+//testDrawBarChartByFlot();
 });
 </script>
 	<style type="text/css">

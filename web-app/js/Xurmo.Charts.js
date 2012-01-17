@@ -86,6 +86,30 @@ TURFINSIGHT.Chart.Flot = function() {
 
 	}
 
+	this.drawBarChart = function(chart){
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
+		
+		for (i = 0; i < chart.data[0].length; i++) {
+			formattedData[i] = [
+				chart.data[0][i],
+				chart.data[1][i]
+			]
+		}
+		
+		formattedOptions = chart.options
+		
+		this.plotMethod(targetDiv,
+		[
+	        {
+	            data: formattedData,
+	            bars: formattedOptions.bars
+	        }
+	    ]);		
+	}
+
+	
 }
 
 TURFINSIGHT.Chart.JqPlot = function() {
@@ -416,4 +440,94 @@ var testDrawPieChartByJqPlot = function() {
 	})
 
 	pieChart.draw()
+}
+
+var testDrawBarChartByFlot = function() {
+	var barChart = new TURFINSIGHT.Chart.BarChart();
+	
+	barChart.setTargetDiv("graph1")
+	
+	barChart.setData([
+	                  [0,4,8,9,12],
+	                  [3,8,5,13,18] 
+	                  ]);
+	
+	barChart.setOptions({
+		bars : {
+			show : true,
+			barWidth: 0.8,
+		    align: "center",
+		    horizontal: false
+		}
+	   })
+	
+	
+	barChart.draw()
+}
+
+TURFINSIGHT.Chart.BarChart = function() {
+
+	this.success = 1;
+	this.data = []
+	
+	this.setTargetDiv = function(targetDiv) {
+		this.targetDiv = targetDiv;
+	}
+
+	this.setData = function(data) {
+		this.data = []
+		if(data.length==1){
+			var isAllNumbers = TURFINSIGHT.Chart.isAllNumbers(data[0])
+			if(isAllNumbers==true){
+					this.data[0] = data[0]
+					this.data[1] = data[0]
+			} else {
+				  var freqMap = TURFINSIGHT.Chart.getFrequencyOfColoumnElements(data[0])
+				  var freq = []
+				  var legends = freqMap.keys()
+				  $.each(legends,function(index,value){
+					  freq.push(jsMap.get(value))
+				  });
+				  this.data[0] = legends
+				  this.data[1] = freq
+				}	
+		} else {
+		this.data = data;
+		}
+	}
+
+	this.setLegendAndValues = function(legend,values){
+		this.legend = legend;
+		this.values = values;
+		this.data[0] = legend
+		this.data[1] = values
+		if(values.length!=legend.length){
+		this.success = 0; 
+		}
+		for(i=0;i<values.length;i++){
+		  if(isNaN(values[i])){
+		  this.success = 0; 
+		  }
+		}
+	}
+	
+	this.setOptions = function(options) {
+		this.options = options;
+	}
+
+	this.draw = function(targetDiv,data,options) {
+		if(targetDiv!=undefined){
+		this.setTargetDiv(targetDiv)	
+		}
+		if(data!=undefined){
+			this.setData(data)	
+		}
+		if(options!=undefined){
+			this.setOptions(options)	
+		}
+		if(this.targetDiv!=undefined && this.data!=undefined && this.options!=undefined){
+		TURFINSIGHT.Chart.ChartFactory.getInstance().drawBarChart(this)
+	  }
+	}
+
 }
