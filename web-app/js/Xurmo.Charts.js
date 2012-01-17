@@ -131,10 +131,10 @@ TURFINSIGHT.Chart.PieChart = function() {
 		this.data = []
 		if(data.length==1){
 		this.data = processDataWithOneColoumn(data[0])	
-		} else if(data.length==2){
+		} else if(data.length>=2){
 		this.data = processDataWithTwoColoumns(data[0],data[1])
 		} else {
-		this.data = data;
+		this.data = null;
 		}
 	}
 
@@ -165,10 +165,7 @@ TURFINSIGHT.Chart.PieChart = function() {
 		}
 	}
 	this.setLegendAndValues = function(legend,values){
-		this.legend = legend;
-		this.values = values;
-		this.data[0] = legend
-		this.data[1] = values
+		this.data = TURFINSIGHT.Chart.mergeSingleDimArrays(legend,values)
 		if(values.length!=legend.length){
 		this.success = false; 
 		}
@@ -205,11 +202,15 @@ var testDrawPieChartByFlot = function() {
 
 	pieChart.setTargetDiv("graph1")
 
+	//pieChart.setLegendAndValues([ "Series1","Series2","Series3","Series4","Series5","Series6"],[ 10, 30, 90, 70, 80, 110])
+	
+	
 	pieChart.setData([
-	        //[ "Series1","Series2","Series3","Series4","Series5","Series6"]
-	       [ 10, 30, 90, 70, 80, 110] 
+	        [ "Series1","Series2","Series3","Series4","Series5","Series6"],
+	        [ 10, 30, 90, 70, 80, 110] 
+	        //[ 23 ,34, 56, 67, 87, 90]
 	        ]);
-
+   
 	pieChart.setOptions({
 		radius :1,
 		legend : true,
