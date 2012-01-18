@@ -12,11 +12,14 @@
 	<script type="text/javascript" src="${resource(dir:'js', file:'KeyValueStore.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'Xurmo.Charts.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.threshold.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.stack.js')}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-testDrawLineChartByFlot();
-//testDrawPieChartByFlot();
 //testDrawBarChartByFlot();
+//testDrawPieChartByFlot();
+//testDrawLineChartByFlot();
+//testDrawStackedBarChartByFlot();
+//testDrawPieChartByJqPlot();
 });
 </script>
 	<style type="text/css">

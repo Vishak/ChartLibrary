@@ -68,7 +68,6 @@
                     tickFormatter: null, // fn: number -> string
                     labelWidth: null, // size of tick labels in pixels
                     labelHeight: null,
-                    labelAngle: null,
                     reserveSpace: null, // whether to reserve space even if axis isn't shown
                     tickLength: null, // size in pixels of ticks, or "full" for whole line
                     alignTicksWithAxis: null, // axis number or null for no sync
@@ -1663,12 +1662,6 @@
                     continue;
                 //debug: html.push('<div style="position:absolute;opacity:0.10;background-color:red;left:' + box.left + 'px;top:' + box.top + 'px;width:' + box.width +  'px;height:' + box.height + 'px"></div>')
                 html.push('<div class="' + axis.direction + 'Axis ' + axis.direction + axis.n + 'Axis" style="color:' + axis.options.color + '">');
-                var _labelPad = 0;
-                for (var i = 0; i < axis.ticks.length; ++i) {
-                	if(axis.ticks[i].label.length > _labelPad ){ 
-                		_labelPad = axis.ticks[i].label.length;
-                	}
-                }
                 for (var i = 0; i < axis.ticks.length; ++i) {
                     var tick = axis.ticks[i];
                     if (!tick.label || tick.v < axis.min || tick.v > axis.max)
@@ -1680,11 +1673,7 @@
                         align = "center";
                         pos.left = Math.round(plotOffset.left + axis.p2c(tick.v) - axis.labelWidth/2);
                         if (axis.position == "bottom")
-                        	if(axis.options.labelAngle){
-                        		pos.top = box.top + box.padding + Math.round(_labelPad * 1.5) ;
-                        	} else {
-                        		pos.top = box.top + box.padding;
-                        	}
+                            pos.top = box.top + box.padding;
                         else
                             pos.bottom = canvasHeight - (box.top + box.height - box.padding);
                     }
@@ -1705,15 +1694,8 @@
                     var style = ["position:absolute", "text-align:" + align ];
                     for (var a in pos)
                         style.push(a + ":" + pos[a] + "px")
-                    if(axis.options.labelAngle){
-                    	var _style = "-o-transform:rotate(" + axis.options.labelAngle + "deg);" + 
-                    				 "-moz-transform: rotate(" + axis.options.labelAngle + "deg);" + 
-                    				 "-webkit-transform: rotate(" + axis.options.labelAngle + "deg);" + 
-                    				 "filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);"
-                    	html.push('<div class="tickLabel" style="' + style.join(';') + _style  + '">' + tick.label + '&nbsp;&nbsp;</div>');
-                    } else {
-                    	html.push('<div class="tickLabel" style="' + style.join(';') + '">' + tick.label + '</div>');
-                    }
+                    
+                    html.push('<div class="tickLabel" style="' + style.join(';') + '">' + tick.label + '</div>');
                 }
                 html.push('</div>');
             }
