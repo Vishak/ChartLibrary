@@ -619,9 +619,6 @@ var testDrawStackedBarChartByFlot = function() {
 }
 
 
-
-
-
 TURFINSIGHT.Chart.StackedBarChart = function() {
 
 	this.success = 1;
