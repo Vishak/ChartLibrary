@@ -123,42 +123,44 @@ TURFINSIGHT.Chart.Flot = function() {
 		var targetDiv = $('#' + chart.targetDiv)
 		var formattedOptions
 		var barData = []
-		
-		for (i = 0; i < chart.data[0].length; i++) {
-			barData[i] = [
-				chart.data[0][i],
-				chart.data[1][i]
-			]
-		}
-		
-		for( i=0 ;i < chart.labels.length; i++){
-			formattedData = {
-					label : chart.labels[i],
-					data : barData
-			}
-		}
-		
-		
-		formattedOptions = {
-		series : {
-			bars : {
-				show : true,
-				barWidth: chart.options.bars.barWidth,
-				align: chart.options.bars.align,
-				horizontal : chart.options.bars.horizontal
-			}
-		},
-			legend : {show:true}
-		}
-		
-		this.plotMethod(targetDiv,[formattedData],formattedOptions);
-	}	
-
-	this.drawStackedBarChart = function(chart){
-		var formattedData = []
-		var targetDiv = $('#' + chart.targetDiv)
-		var formattedOptions
 		var seriesData = []
+
+		
+		if(chart.legends==undefined){
+			chart.legends = []
+			for(i=0;i<chart.data.length;i++){
+				chart.legends[i] = "Series" + (i+1)
+			}
+		}
+
+		if(chart.legends.length < chart.data.length){
+			for(i=0;i<chart.data.length;i++){
+				if(chart.legends[i]==undefined){
+					chart.legends[i] = "Series" + (i+1)
+				}
+			}
+		}
+		
+		if(chart.labels==undefined){
+			chart.labels = []
+			for(i=0;i<chart.data[0].length;i++){
+				chart.labels[i] = "Label" + (i+1)
+			}
+		}
+
+		if(chart.labels.length < chart.data[0].length){
+			for(i=0;i<chart.data[0].length;i++){
+				if(chart.labels[i]==undefined){
+					chart.labels[i] = "Label" + (i+1)
+				}
+			}
+		}
+		
+		var stackedBarTicks = []
+		for(i=0;i<chart.labels.length;i++){
+			stackedBarTicks[i]=[i+1,chart.labels[i]]
+		}
+		
 		for(j=0;j<chart.data.length-1; j++){
 			var barData =[]
 			for (i = 0; i < chart.data[0].length; i++) {
@@ -171,9 +173,86 @@ TURFINSIGHT.Chart.Flot = function() {
 			seriesData[j] = barData
 	}
 		
-		for( i=0 ;i < chart.labels.length; i++){
+		for( i=0 ;i < chart.legends.length-1; i++){
 			formattedData[i] = {
-					label : chart.labels[i],
+					label : chart.legends[i],
+					data : seriesData[i]
+			}
+		}
+		
+		formattedOptions = {
+		series : {
+			bars : {
+				show : true,
+				barWidth: chart.options.bars.barWidth,
+				align: chart.options.bars.align,
+				series_spread: true,
+				horizontal : chart.options.bars.horizontal
+			}
+		},
+			legend : {show:true},
+			xaxis: {ticks: stackedBarTicks,autoscaleMargin: .10} 
+		}
+		
+		this.plotMethod(targetDiv,formattedData,formattedOptions);
+	}	
+
+	this.drawStackedBarChart = function(chart){
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
+		var seriesData = []
+		
+		if(chart.legends==undefined){
+			chart.legends = []
+			for(i=0;i<chart.data.length;i++){
+				chart.legends[i] = "Series" + (i+1)
+			}
+		}
+
+		if(chart.legends.length < chart.data.length){
+			for(i=0;i<chart.data.length;i++){
+				if(chart.legends[i]==undefined){
+					chart.legends[i] = "Series" + (i+1)
+				}
+			}
+		}
+
+		if(chart.labels==undefined){
+			chart.labels = []
+			for(i=0;i<chart.data[0].length;i++){
+				chart.labels[i] = "Label" + (i+1)
+			}
+		}
+
+		if(chart.labels.length < chart.data[0].length){
+			for(i=0;i<chart.data[0].length;i++){
+				if(chart.labels[i]==undefined){
+					chart.labels[i] = "Label" + (i+1)
+				}
+			}
+		}
+		
+		var stackedBarTicks = []
+		for(i=0;i<chart.labels.length;i++){
+			stackedBarTicks[i]=[i+1,chart.labels[i]]
+		}
+		
+		for(j=0;j<chart.data.length-1; j++){
+			var barData =[]
+			for (i = 0; i < chart.data[0].length; i++) {
+			barData[i] = [
+				chart.data[0][i],
+				chart.data[j+1][i]
+			]
+		}
+			var ink = barData
+			seriesData[j] = barData
+	}
+		
+		for( i=0 ;i < chart.legends.length; i++){
+			formattedData[i] = {
+					label : chart.legends[i],
 					data : seriesData[i]
 			}
 		}
@@ -189,13 +268,11 @@ TURFINSIGHT.Chart.Flot = function() {
 				horizontal : chart.options.bars.horizontal
 			}
 		},
-			legend : {show:true}
+			legend : {show:true},
+			xaxis: {ticks: stackedBarTicks} 
 		}
-		
 		this.plotMethod(targetDiv,formattedData,formattedOptions);
 	}	
-
-
 }
 
 TURFINSIGHT.Chart.JqPlot = function() {
@@ -437,7 +514,6 @@ TURFINSIGHT.Chart.LineChart = function() {
 				}
 			}
 		}
-		
 		return resultData
 	}
 	
@@ -570,12 +646,16 @@ var testDrawBarChartByFlot = function() {
 	var barChart = new TURFINSIGHT.Chart.BarChart();
 	
 	barChart.setTargetDiv("graph1")
+
+	barChart.setLabel(['Item1'])
 	
 	barChart.setData([
-	                  [0,4,8,9,12],
-	                  [3,8,5,13,18] 
+	                  [9,7,8,3,6],
+	                  [3,8,5,13,7],
+	                  [13,4,'a',5,9]
 	                  ]);
-	barChart.setLabel(['Label'])
+	barChart.setLegend(['Legend'])
+	
 	
 	barChart.setOptions({
 		bars : {
@@ -598,32 +678,84 @@ TURFINSIGHT.Chart.BarChart = function() {
 		this.targetDiv = targetDiv;
 	}
 	
+	this.setLegend = function(legends){
+		this.legends = legends;
+	}
+	
 	this.setLabel = function(labels){
 		this.labels = labels;
 	}
 
 	this.setData = function(data) {
-		this.data = []
+		this.data = null
 		if(data.length==1){
-			var isAllNumbers = TURFINSIGHT.Chart.isAllNumbers(data[0])
-			if(isAllNumbers==true){
-					this.data[0] = data[0]
-					this.data[1] = data[0]
-			} else {
-				  var freqMap = TURFINSIGHT.Chart.getFrequencyOfColoumnElements(data[0])
-				  var freq = []
-				  var legends = freqMap.keys()
-				  $.each(legends,function(index,value){
-					  freq.push(jsMap.get(value))
-				  });
-				  this.data[0] = legends
-				  this.data[1] = freq
-				}	
-		} else {
-		this.data = data;
-		}
+		this.data = processDataWithOneColoumn(data[0])	
+		} else if(data.length>=2){
+		this.data = processDataWithMultipleColoumns.call(this,data)
+		} 
 	}
 
+	var processDataWithOneColoumn = function(yAxis){
+		var resultData = null
+		var isAllText = TURFINSIGHT.Chart.isAllText(yAxis)
+		if(isAllText==false){
+			resultData = []
+			var xAxis = []
+			for(i=0;i<yAxis.length;i++){
+				xAxis[i] = i+1
+				if(isNaN(yAxis[i])){
+				yAxis[i] = 0	
+				}
+			}
+			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(xAxis,yAxis)
+		} 
+		return resultData
+	}
+	
+	var processDataWithMultipleColoumns = function(coloumns){
+		
+		var largestColoumnLength = 0;
+		var xAxis = []
+		var resultData = []
+		var startColOfNumericdata = 0;
+		for(i=0;i<coloumns.length;i++){
+			if(coloumns[i].length > largestColoumnLength){
+				largestColoumnLength = coloumns[i].length 
+			}
+		}
+		
+		if(TURFINSIGHT.Chart.isAllNumbers(coloumns[0])){
+		for(i=0;i<largestColoumnLength;i++){
+			xAxis[i] = i+1
+		}
+		} else {
+			var labels = []
+			for(i=0;i<largestColoumnLength;i++){
+				xAxis[i] = i+1
+				if(coloumns[0][i] == undefined){
+					labels[i] = "Item "+i	
+				} else {
+					labels[i] = coloumns[0][i]
+				}
+			}
+			this.setLabel(labels)
+			startColOfNumericdata = 1
+		}
+		resultData[0] = xAxis
+		for(i=startColOfNumericdata;i<coloumns.length;i++){
+			resultData[i+1-startColOfNumericdata] = []
+			for(j=0;j<largestColoumnLength;j++){
+				if(coloumns[i][j]!=undefined && !isNaN(coloumns[i][j])){
+					resultData[i+1-startColOfNumericdata][j] = coloumns[i][j]		
+				}else{
+					resultData[i+1-startColOfNumericdata][j] = 0
+				}
+			}
+		}
+		return resultData
+	}
+	
+	
 	this.setLegendAndValues = function(legend,values){
 		this.legend = legend;
 		this.values = values;
@@ -666,20 +798,23 @@ var testDrawStackedBarChartByFlot = function() {
 	
 	stackedBarChart.setTargetDiv("graph1")
 	
+	stackedBarChart.setLabel(['Item1','Item2'])
+
 	stackedBarChart.setData([
-	                  [0,4,8,9,12],
-	                  [3,8,5,13,18], 
-	                  [6,7,2,10,6], 
+	                  [2,4,5,'w'],
+	                  [3,'w',5,13,7], 
+	                  [6,7,2,8,16], 
 	                  [16,4,12,4,9] 
 	                  ]);
-	stackedBarChart.setLabel(['Label1','Label2','Label3'])
+	stackedBarChart.setLegend(['Legend1'])
+
 	
 	stackedBarChart.setOptions({
 		stack: 0,
 		lines: {show: false, steps: false },
 		bars : {
 			show : true,
-			barWidth: .8,
+			barWidth: .4,
 		    align: "center",
 		    horizontal: false
 		}
@@ -698,32 +833,84 @@ TURFINSIGHT.Chart.StackedBarChart = function() {
 		this.targetDiv = targetDiv;
 	}
 	
+	this.setLegend = function(legends){
+		this.legends = legends;
+	}
+
 	this.setLabel = function(labels){
 		this.labels = labels;
 	}
-
+	
 	this.setData = function(data) {
-		this.data = []
+		this.data = null
 		if(data.length==1){
-			var isAllNumbers = TURFINSIGHT.Chart.isAllNumbers(data[0])
-			if(isAllNumbers==true){
-					this.data[0] = data[0]
-					this.data[1] = data[0]
-			} else {
-				  var freqMap = TURFINSIGHT.Chart.getFrequencyOfColoumnElements(data[0])
-				  var freq = []
-				  var legends = freqMap.keys()
-				  $.each(legends,function(index,value){
-					  freq.push(jsMap.get(value))
-				  });
-				  this.data[0] = legends
-				  this.data[1] = freq
-				}	
-		} else {
-		this.data = data;
-		}
+		this.data = processDataWithOneColoumn(data[0])	
+		} else if(data.length>=2){
+		this.data = processDataWithMultipleColoumns.call(this,data)
+		} 
 	}
 
+	var processDataWithOneColoumn = function(yAxis){
+		var resultData = null
+		var isAllText = TURFINSIGHT.Chart.isAllText(yAxis)
+		if(isAllText==false){
+			resultData = []
+			var xAxis = []
+			for(i=0;i<yAxis.length;i++){
+				xAxis[i] = i+1
+				if(isNaN(yAxis[i])){
+				yAxis[i] = 0	
+				}
+			}
+			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(xAxis,yAxis)
+		} 
+		return resultData
+	}
+	
+	var processDataWithMultipleColoumns = function(coloumns){
+		
+		var largestColoumnLength = 0;
+		var xAxis = []
+		var resultData = []
+		var startColOfNumericdata = 0;
+		for(i=0;i<coloumns.length;i++){
+			if(coloumns[i].length > largestColoumnLength){
+				largestColoumnLength = coloumns[i].length 
+			}
+		}
+		
+		if(TURFINSIGHT.Chart.isAllNumbers(coloumns[0])){
+		for(i=0;i<largestColoumnLength;i++){
+			xAxis[i] = i+1
+		}
+		} else {
+			var labels = []
+			for(i=0;i<largestColoumnLength;i++){
+				xAxis[i] = i+1
+				if(coloumns[0][i] == undefined){
+					labels[i] = "Item "+i	
+				} else {
+					labels[i] = coloumns[0][i]
+				}
+			}
+			this.setLabel(labels)
+			startColOfNumericdata = 1
+		}
+		resultData[0] = xAxis
+		for(i=startColOfNumericdata;i<coloumns.length;i++){
+			resultData[i+1-startColOfNumericdata] = []
+			for(j=0;j<largestColoumnLength;j++){
+				if(coloumns[i][j]!=undefined && !isNaN(coloumns[i][j])){
+					resultData[i+1-startColOfNumericdata][j] = coloumns[i][j]		
+				}else{
+					resultData[i+1-startColOfNumericdata][j] = 0
+				}
+			}
+		}
+		return resultData
+	}
+	
+	
 	this.setLegendAndValues = function(legend,values){
 		this.legend = legend;
 		this.values = values;
