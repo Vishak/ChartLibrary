@@ -48,26 +48,80 @@ TURFINSIGHT.Chart.Flot = function() {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
 		var formattedOptions
+		var barData = []
 		
 		for (i = 0; i < chart.data[0].length; i++) {
-			formattedData[i] = [
+			barData[i] = [
 				chart.data[0][i],
 				chart.data[1][i]
 			]
 		}
 		
-		formattedOptions = chart.options
+		for( i=0 ;i < chart.labels.length; i++){
+			formattedData = {
+					label : chart.labels[i],
+					data : barData
+			}
+		}
 		
-		this.plotMethod(targetDiv,
-		[
-	        {
-	            data: formattedData,
-	            bars: formattedOptions.bars
-	        }
-	    ]);		
-	}
+		
+		formattedOptions = {
+		series : {
+			bars : {
+				show : true,
+				barWidth: chart.options.bars.barWidth,
+				align: chart.options.bars.align,
+				horizontal : chart.options.bars.horizontal
+			}
+		},
+			legend : {show:true}
+		}
+		
+		this.plotMethod(targetDiv,[formattedData],formattedOptions);
+	}	
 
-	
+	this.drawStackedBarChart = function(chart){
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
+		var seriesData = []
+		for(j=0;j<chart.data.length-1; j++){
+			var barData =[]
+			for (i = 0; i < chart.data[0].length; i++) {
+			barData[i] = [
+				chart.data[0][i],
+				chart.data[j+1][i]
+			]
+		}
+			var ink = barData
+			seriesData[j] = barData
+	}
+		
+		for( i=0 ;i < chart.labels.length; i++){
+			formattedData[i] = {
+					label : chart.labels[i],
+					data : seriesData[i]
+			}
+		}
+		
+		formattedOptions = {
+		series : {
+			stack : chart.options.stack,
+			lines : chart.options.lines,
+			bars : {
+				show : true,
+				barWidth: chart.options.bars.barWidth,
+				align: chart.options.bars.align,
+				horizontal : chart.options.bars.horizontal
+			}
+		},
+			legend : {show:true}
+		}
+		
+		this.plotMethod(targetDiv,formattedData,formattedOptions);
+	}	
+
+
 }
 
 TURFINSIGHT.Chart.JqPlot = function() {
@@ -292,6 +346,7 @@ var testDrawBarChartByFlot = function() {
 	                  [0,4,8,9,12],
 	                  [3,8,5,13,18] 
 	                  ]);
+	barChart.setLabel(['Label'])
 	
 	barChart.setOptions({
 		bars : {
@@ -301,7 +356,6 @@ var testDrawBarChartByFlot = function() {
 		    horizontal: false
 		}
 	   })
-	
 	
 	barChart.draw()
 }
@@ -313,6 +367,10 @@ TURFINSIGHT.Chart.BarChart = function() {
 	
 	this.setTargetDiv = function(targetDiv) {
 		this.targetDiv = targetDiv;
+	}
+	
+	this.setLabel = function(labels){
+		this.labels = labels;
 	}
 
 	this.setData = function(data) {
@@ -372,3 +430,107 @@ TURFINSIGHT.Chart.BarChart = function() {
 	}
 
 }
+
+
+var testDrawStackedBarChartByFlot = function() {
+	var stackedBarChart = new TURFINSIGHT.Chart.StackedBarChart();
+	
+	stackedBarChart.setTargetDiv("graph1")
+	
+	stackedBarChart.setData([
+	                  [0,4,8,9,12],
+	                  [3,8,5,13,18], 
+	                  [6,7,2,10,6], 
+	                  [16,4,12,4,9] 
+	                  ]);
+	stackedBarChart.setLabel(['Label1','Label2','Label3'])
+	
+	stackedBarChart.setOptions({
+		stack: 0,
+		lines: {show: false, steps: false },
+		bars : {
+			show : true,
+			barWidth: .8,
+		    align: "center",
+		    horizontal: false
+		}
+	   })
+	
+	stackedBarChart.draw()
+}
+
+
+
+
+
+TURFINSIGHT.Chart.StackedBarChart = function() {
+
+	this.success = 1;
+	this.data = []
+	
+	this.setTargetDiv = function(targetDiv) {
+		this.targetDiv = targetDiv;
+	}
+	
+	this.setLabel = function(labels){
+		this.labels = labels;
+	}
+
+	this.setData = function(data) {
+		this.data = []
+		if(data.length==1){
+			var isAllNumbers = TURFINSIGHT.Chart.isAllNumbers(data[0])
+			if(isAllNumbers==true){
+					this.data[0] = data[0]
+					this.data[1] = data[0]
+			} else {
+				  var freqMap = TURFINSIGHT.Chart.getFrequencyOfColoumnElements(data[0])
+				  var freq = []
+				  var legends = freqMap.keys()
+				  $.each(legends,function(index,value){
+					  freq.push(jsMap.get(value))
+				  });
+				  this.data[0] = legends
+				  this.data[1] = freq
+				}	
+		} else {
+		this.data = data;
+		}
+	}
+
+	this.setLegendAndValues = function(legend,values){
+		this.legend = legend;
+		this.values = values;
+		this.data[0] = legend
+		this.data[1] = values
+		if(values.length!=legend.length){
+		this.success = 0; 
+		}
+		for(i=0;i<values.length;i++){
+		  if(isNaN(values[i])){
+		  this.success = 0; 
+		  }
+		}
+	}
+	
+	this.setOptions = function(options) {
+		this.options = options;
+	}
+
+	this.draw = function(targetDiv,data,options) {
+		if(targetDiv!=undefined){
+		this.setTargetDiv(targetDiv)	
+		}
+		if(data!=undefined){
+			this.setData(data)	
+		}
+		if(options!=undefined){
+			this.setOptions(options)	
+		}
+		if(this.targetDiv!=undefined && this.data!=undefined && this.options!=undefined){
+		TURFINSIGHT.Chart.ChartFactory.getInstance().drawStackedBarChart(this)
+	  }
+	}
+
+}
+
