@@ -18,7 +18,7 @@ $(document).ready(function(){
 //testDrawBarChartByFlot();
 //testDrawPieChartByFlot();
 //testDrawLineChartByFlot();
-testDrawStackedBarChartByFlot();
+//testDrawStackedBarChartByFlot();
 //testDrawPieChartByJqPlot();
 });
 </script>
