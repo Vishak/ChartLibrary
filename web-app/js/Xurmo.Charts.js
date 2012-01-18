@@ -2,6 +2,7 @@ var TURFINSIGHT = TURFINSIGHT || {}
 TURFINSIGHT.Chart = TURFINSIGHT.Chart || {}
 var jsMap = new TURF.Util.KeyValueStore();
 
+
 TURFINSIGHT.Chart.Flot = function() {
 	this.type = 'Flot'
 	this.plotMethod = $.plot
@@ -54,6 +55,26 @@ TURFINSIGHT.Chart.Flot = function() {
 			for(i=0;i<chart.data.length-1;i++){
 				chart.legend[i] = "Series" + (i+1)
 			}
+		} else if(chart.legend.length!=chart.data.length-1){
+			var newLegends = []
+			for(i=0;i<chart.data.length-1;i++){
+				if(chart.legend[i]==undefined){
+					newLegends[i] = "Series" + (i+1)
+				} else {
+					newLegends[i] = chart.legend[i] 
+				}
+			}
+			chart.legend = newLegends
+		}
+		
+		if(chart.labels){
+			chart.ticks = []
+			for(i=0;i<chart.labels.length;i++){
+				var eachTick = []
+				eachTick[0] = chart.data[0][i]
+				eachTick[1] = chart.labels[i]
+				chart.ticks[i] = eachTick
+			}
 		}
 		
 		for (i = 1; i < chart.data.length;i++){
@@ -67,12 +88,23 @@ TURFINSIGHT.Chart.Flot = function() {
 			}
 		}   
 	   
+		chart.options.type.lines = true
+		
+		if(chart.options.type.interactive){
+			chart.options.type.points = true
+			chart.options.type.lines = true
+		} else if(chart.options.type.points){
+			chart.options.type.lines = false 
+		}
 		
 		formattedOptions = {
 		series : {
-			lines: { show: true },
-            points: { show: true }
+			color: chart.options.color,
+			threshold : chart.options.threshold,
+			lines: { show: chart.options.type.lines, fill:chart.options.type.fill, steps:chart.options.type.steps },
+            points: { show: chart.options.type.points }
 		},
+		xaxis :  { ticks : chart.ticks },
 		legend : {
 			show:chart.options.legend
 		},
@@ -124,24 +156,29 @@ TURFINSIGHT.Chart.JqPlot = function() {
 
 }
 
-TURFINSIGHT.Chart.ChartFactory = function() {
+(function()
+		{
+		TURFINSIGHT.Chart.ChartFactory = function() {
+		   this.library
+		   this.instance
+		}
+		TURFINSIGHT.Chart.ChartFactory.getInstance = function() {
+			TURFINSIGHT.Chart.ChartFactory.library = 'flot'          //This Will Be Read as Part Of Configuration
+			if (!TURFINSIGHT.Chart.ChartFactory.instance) {
+				switch (TURFINSIGHT.Chart.ChartFactory.library) {
+				case 'flot':
+					TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.Flot();
+					break;
+				case 'jqPlot':
+					TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.JqPlot();
+					break;
+				}
+			}
+			return TURFINSIGHT.Chart.ChartFactory.instance;
+		}
+	   TURFINSIGHT.Chart.ChartLibrary = TURFINSIGHT.Chart.ChartFactory.getInstance()
+}());
 
-}
-
-TURFINSIGHT.Chart.ChartFactory.getInstance = function() {
-	if (!TURFINSIGHT.Chart.ChartFactory.instance) {
-		var library = 'flot'
-		switch (library) {
-		case 'flot':
-			TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.Flot();
-			break;
-		case 'jqPlot':
-			TURFINSIGHT.Chart.ChartFactory.instance = new TURFINSIGHT.Chart.JqPlot();
-			break;
-		}this
-	}
-	return TURFINSIGHT.Chart.ChartFactory.instance;
-}
 
 TURFINSIGHT.Chart.isAllNumbers = function(list){
 	var result = true
@@ -255,7 +292,7 @@ TURFINSIGHT.Chart.PieChart = function() {
 			this.setOptions(options)	
 		}
 		if(this.targetDiv!=undefined && this.data!=undefined && this.options!=undefined){
-		TURFINSIGHT.Chart.ChartFactory.getInstance().drawPieChart(this)
+			TURFINSIGHT.Chart.ChartLibrary.drawPieChart(this)
 	  }
 	}
 
@@ -276,12 +313,16 @@ TURFINSIGHT.Chart.LineChart = function() {
 		this.legend = legend
 	}
 	
+	this.setLabels = function(labels){
+		this.labels = labels
+	}
+	
 	this.setData = function(data) {
 		this.data = null
 		if(data.length==1){
 		this.data = processDataWithOneColoumn(data[0])	
 		} else if(data.length>=2){
-		this.data = processDataWithMultipleColoumns(data)
+		this.data = processDataWithMultipleColoumns.call(this,data)
 		} 
 	}
 
@@ -297,7 +338,7 @@ TURFINSIGHT.Chart.LineChart = function() {
 				yAxis[i] = 0	
 				}
 			}
-			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(yAxis,xAxis)
+			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(xAxis,yAxis)
 		} 
 		return resultData
 	}
@@ -307,22 +348,38 @@ TURFINSIGHT.Chart.LineChart = function() {
 		var largestColoumnLength = 0;
 		var xAxis = []
 		var resultData = []
+		var startColOfNumericdata = 0;
 		for(i=0;i<coloumns.length;i++){
 			if(coloumns[i].length > largestColoumnLength){
 				largestColoumnLength = coloumns[i].length 
 			}
 		}
+		
+		if(TURFINSIGHT.Chart.isAllNumbers(coloumns[0])){
 		for(i=0;i<largestColoumnLength;i++){
 			xAxis[i] = i+1
 		}
+		} else {
+			var labels = []
+			for(i=0;i<largestColoumnLength;i++){
+				xAxis[i] = i+1
+				if(coloumns[0][i] == undefined){
+					labels[i] = "Item "+i	
+				} else {
+					labels[i] = coloumns[0][i]
+				}
+			}
+			this.setLabels(labels)
+			startColOfNumericdata = 1
+		}
 		resultData[0] = xAxis
-		for(i=0;i<coloumns.length;i++){
-			resultData[i+1] = []
+		for(i=startColOfNumericdata;i<coloumns.length;i++){
+			resultData[i+1-startColOfNumericdata] = []
 			for(j=0;j<largestColoumnLength;j++){
 				if(coloumns[i][j]!=undefined && !isNaN(coloumns[i][j])){
-					resultData[i+1][j] = coloumns[i][j]		
+					resultData[i+1-startColOfNumericdata][j] = coloumns[i][j]		
 				}else{
-					resultData[i+1][j] = 0
+					resultData[i+1-startColOfNumericdata][j] = 0
 				}
 			}
 		}
@@ -330,11 +387,8 @@ TURFINSIGHT.Chart.LineChart = function() {
 		return resultData
 	}
 	
-	this.setLegendAndValues = function(legend,values){
-		this.legend = legend
-		if(values.length!=legend.length){
-		this.success = false; 
-		}
+	this.setLabelsAndValues = function(labels,values){
+		this.setLabels(labels)
 		this.setData(values)
 	}
 	
@@ -353,7 +407,7 @@ TURFINSIGHT.Chart.LineChart = function() {
 			this.setOptions(options)	
 		}
 		if(this.targetDiv!=undefined && this.data!=undefined && this.options!=undefined){
-		TURFINSIGHT.Chart.ChartFactory.getInstance().drawLineChart(this)
+			TURFINSIGHT.Chart.ChartLibrary.drawLineChart(this)
 	  }
 	}
 
@@ -394,9 +448,16 @@ var testDrawLineChartByFlot = function() {
 	var lineChart = new TURFINSIGHT.Chart.LineChart();
 
 	lineChart.setTargetDiv("graph1")
-	lineChart.setLegend(['a','b','c'])
+	lineChart.setLegend(['a1','a2'])
+	/*
+	lineChart.setLabelsAndValues([ 'a', 30, 90, 'd', 'e', 110],[
+            [ 100, 30, 90, 10, 50, 110],
+			[ 23 ,34, 56, 67, 87, 90],
+	        [ 2 ,15, 20, 50, 85, 150]
+			])
+	*/
 	lineChart.setData([
-	        [ 10, 30, 90, 70, 80, 110], 
+	        [ 'a', 30, 90, 'd', 'e', 110],
 	        [ 23 ,34, 56, 67, 87, 90],
 	        [ 2 ,15, 20, 50, 85, 150]
 	        ]);
@@ -404,7 +465,16 @@ var testDrawLineChartByFlot = function() {
 	lineChart.setOptions({
 		legend : true,
 		hoverable: true,
-	    clickable: true
+	    clickable: true,
+	    //color: "rgb(30, 180, 20)",
+        //threshold: { below: 50, color: "rgb(200, 20, 30)" },
+	    type:{ 
+	    	   interactive:true,
+	           //points:true,
+	           fill:false,
+	           steps:false
+	    }  
+	
 	})
 
 		

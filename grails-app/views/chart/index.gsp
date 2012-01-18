@@ -11,6 +11,7 @@
     <script type="text/javascript" src="${resource(dir:'js', file:'jqplot.pieRenderer.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'KeyValueStore.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'Xurmo.Charts.js')}"></script>
+    <script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.threshold.js')}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 testDrawLineChartByFlot();
