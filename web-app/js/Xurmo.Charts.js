@@ -126,6 +126,88 @@ TURFINSIGHT.Chart.Flot = function() {
 
 	}
 
+	this.drawXYScatterChart = function(chart) {
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
+
+		if (chart.legend == undefined) {
+			chart.legend = []
+			for (i = 0; i < chart.data.length - 1; i++) {
+				chart.legend[i] = "Series" + (i + 1)
+			}
+		} else if (chart.legend.length != chart.data.length - 1) {
+			var newLegends = []
+			for (i = 0; i < chart.data.length - 1; i++) {
+				if (chart.legend[i] == undefined) {
+					newLegends[i] = "Series" + (i + 1)
+				} else {
+					newLegends[i] = chart.legend[i]
+				}
+			}
+			chart.legend = newLegends
+		}
+
+		if (chart.labels) {
+			chart.ticks = []
+			for (i = 0; i < chart.labels.length; i++) {
+				var eachTick = []
+				eachTick[0] = chart.data[0][i]
+				eachTick[1] = chart.labels[i]
+				chart.ticks[i] = eachTick
+			}
+		}
+
+		for (i = 1; i < chart.data.length; i++) {
+			var eachData = []
+			for (j = 0; j < chart.data[0].length; j++) {
+				eachData[j] = [ chart.data[0][j], chart.data[i][j] ]
+			}
+			formattedData[i - 1] = {
+				label : chart.legend[i - 1],
+				data : eachData
+			}
+		}
+
+		chart.options.type.lines = true
+
+		if (chart.options.type.interactive) {
+			chart.options.type.points = true
+			chart.options.type.lines = true
+		} else if (chart.options.type.points) {
+			chart.options.type.lines = false
+		}
+
+		formattedOptions = {
+			series : {
+				color : chart.options.color,
+				threshold : chart.options.threshold,
+				lines : {
+					show : chart.options.type.lines,
+					fill : chart.options.type.fill,
+					steps : chart.options.type.steps
+				},
+				points : {
+					show : chart.options.type.points
+				}
+			},
+			xaxis : {
+				ticks : chart.ticks
+			},
+			legend : {
+				show : chart.options.legend
+			},
+			grid : {
+				clickable : chart.options.clickable,
+				hoverable : chart.options.hoverable
+			}
+		}
+
+		this.plotMethod(targetDiv, formattedData, formattedOptions);
+
+	}
+	
+	
 	this.drawBarChart = function(chart) {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
@@ -507,6 +589,7 @@ TURFINSIGHT.Chart.LineChart = function() {
 			for (i = 0; i < largestColoumnLength; i++) {
 				xAxis[i] = i + 1
 			}
+			this.setLabels(xAxis)
 		} else {
 			var labels = []
 			for (i = 0; i < largestColoumnLength; i++) {
@@ -808,3 +891,118 @@ TURFINSIGHT.Chart.StackedBarChart = function() {
 	}
 
 }
+
+TURFINSIGHT.Chart.XYScatterChart = function() {
+
+	this.success = true;
+	this.data = []
+
+	this.setTargetDiv = function(targetDiv) {
+		this.targetDiv = targetDiv;
+	}
+
+	this.setLegend = function(legend) {
+		this.legend = legend
+	}
+
+	this.setLabels = function(labels) {
+		this.labels = labels
+	}
+
+	this.setData = function(data) {
+		this.data = null
+		if (data.length == 1) {
+			this.data = processDataWithOneColoumn(data[0])
+		} else if (data.length >= 2) {
+			this.data = processDataWithMultipleColoumns.call(this, data)
+		}
+	}
+
+	var processDataWithOneColoumn = function(yAxis) {
+		var resultData = null
+		var isAllText = TURFINSIGHT.Chart.isAllText(yAxis)
+		if (isAllText == false) {
+			resultData = []
+			var xAxis = []
+			for (i = 0; i < yAxis.length; i++) {
+				xAxis[i] = i + 1
+				if (isNaN(yAxis[i])) {
+					yAxis[i] = 0
+				}
+			}
+			resultData = TURFINSIGHT.Chart.mergeSingleDimArrays(xAxis, yAxis)
+		}
+		return resultData
+	}
+
+	var processDataWithMultipleColoumns = function(coloumns) {
+
+		var largestColoumnLength = 0;
+		var xAxis = []
+		var resultData = []
+		var startColOfNumericdata = 0;
+		for (i = 0; i < coloumns.length; i++) {
+			if (coloumns[i].length > largestColoumnLength) {
+				largestColoumnLength = coloumns[i].length
+			}
+		}
+
+		if (TURFINSIGHT.Chart.isAllNumbers(coloumns[0])) {
+			for (i = 0; i < largestColoumnLength; i++) {
+				xAxis[i] = i + 1
+			}
+			this.setLabels(xAxis)
+		} else {
+			var labels = []
+			for (i = 0; i < largestColoumnLength; i++) {
+				xAxis[i] = i + 1
+				if (coloumns[0][i] == undefined) {
+					labels[i] = "Label " + i
+				} else {
+					labels[i] = coloumns[0][i]
+				}
+			}
+			this.setLabels(labels)
+			startColOfNumericdata = 1
+		}
+		resultData[0] = xAxis
+		for (i = startColOfNumericdata; i < coloumns.length; i++) {
+			resultData[i + 1 - startColOfNumericdata] = []
+			for (j = 0; j < largestColoumnLength; j++) {
+				if (coloumns[i][j] != undefined && !isNaN(coloumns[i][j])) {
+					resultData[i + 1 - startColOfNumericdata][j] = coloumns[i][j]
+				} else {
+					resultData[i + 1 - startColOfNumericdata][j] = 0
+				}
+			}
+		}
+		return resultData
+	}
+
+	this.setLabelsAndValues = function(labels, values) {
+		this.setLabels(labels)
+		this.setData(values)
+	}
+
+	this.setOptions = function(options) {
+		this.options = options;
+	}
+
+	this.draw = function(targetDiv, data, options) {
+		if (targetDiv != undefined) {
+			this.setTargetDiv(targetDiv)
+		}
+		if (data != undefined) {
+			this.setData(data)
+		}
+		if (options != undefined) {
+			this.setOptions(options)
+		}
+		if (this.targetDiv != undefined && this.data != undefined
+				&& this.options != undefined) {
+			TURFINSIGHT.Chart.ChartLibrary.drawXYScatterChart(this)
+		}
+	}
+
+}
+

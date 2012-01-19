@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Flot Pie Examples</title>
 	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script type="text/javascript" src="${resource(dir:'js', file:'test.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'jquery-1.6.2.min.js')}"></script>
 	<script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.js')}"></script>
     <script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.pie.js')}"></script>
