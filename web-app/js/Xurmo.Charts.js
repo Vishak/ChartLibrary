@@ -99,6 +99,10 @@ TURFINSIGHT.Chart.Flot = function() {
 			}
 		}
 
+		if(chart.options.type==undefined){
+			chart.options.type = {}
+		}
+		
 		chart.options.type.lines = true
 
 		if (chart.options.type.interactive) {
