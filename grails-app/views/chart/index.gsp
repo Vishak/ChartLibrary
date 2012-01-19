@@ -16,7 +16,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 //testDrawBarChartByFlot();
-testDrawPieChartByFlot();
+//testDrawPieChartByFlot();
 //testDrawLineChartByFlot();
 //testDrawStackedBarChartByFlot();
 //testDrawPieChartByJqPlot();

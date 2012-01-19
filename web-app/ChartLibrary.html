@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Flot Pie Examples</title>
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
+    <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+	<script type="text/javascript" src="js/jquery.flot.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="js/jquery.jqplot.js"></script>
+    <script type="text/javascript" src="js/jqplot.pieRenderer.js"></script>
+	 <script type="text/javascript" src="js/KeyValueStore.js"></script>
+    <script type="text/javascript" src="js/Xurmo.Charts.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.threshold.js"></script>
+    <script type="text/javascript" src="js/jquery.flot.stack.js"></script>
+<script type="text/javascript">
+var BarChart = new TURFINSIGHT.Chart.BarChart();
+var StackedBarChart = new TURFINSIGHT.Chart.StackedBarChart();
+var PieChart = new TURFINSIGHT.Chart.PieChart();
+var LineChart = new TURFINSIGHT.Chart.LineChart();
+$(document).ready(function(){
+plot();
+});
+function plot(){
+	var chart = $("#chart").val();
+	var targetdiv = $("#targetdiv").val()
+	var chartdata = $("#data").val()
+	var options = $("#options").val()
+	if(chart == "Fill" || chart == "Step" || chart == "Interactive" || chart == "Scatter")
+		chart = "Line"
+eval(chart+"Chart").setTargetDiv(targetdiv)
+eval(chart+"Chart").setData(eval(chartdata))
+eval(chart+"Chart").setOptions(eval(options)[0])
+eval(chart+"Chart").draw()
+//eval("testDraw"+chart+"ChartByFlot")(targetdiv,chartdata,options);
+}
+function loadvalues(){
+	if($("#chart").val()=="Bar"){
+		$("#data").val("[[9,7,8,3,6],[3,8,5,13,7],[13,4,'a',5,9]]")
+		$("#options").val('[{bars : {	show : true,barWidth: 0.8,align: "center",horizontal: false}}]')		
+	}	
+	if($("#chart").val()=="Pie"){
+		$("#data").val('[[ "Series1","Series2","Series3","Series4","Series5","Series6"],[ 10, 30, 90, 70, 80, 110]]')
+		$("#options").val('[{radius :1,legend : true,hoverable: true,clickable: true,label: {show: true,radius: 0.8,color: "#999"}}]')		
+	}	
+	if($("#chart").val()=="Line"){
+		$("#data").val("[[ 'a', 30, 90, 'd', 'e', 110],[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true,type:{}}]')		
+	}
+	if($("#chart").val()=="StackedBar"){
+		$("#data").val("[[2,4,5,'w'],[3,'w',5,13,7],[6,7,2,8,16],[16,4,12,4,9]]")
+		$("#options").val('[{stack: 0,lines: {show: false, steps: false },bars : {	show : true,barWidth: .4,align: "center",horizontal: false}}]')		
+	}
+	if($("#chart").val()=="Fill"){
+		$("#data").val("[[ 23 ,34, 56, 67, 87, 9]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true, type:{ fill:true}}]')		
+	}
+	if($("#chart").val()=="Step"){
+		$("#data").val("[[ 'a', 30, 90, 'd', 'e', 110],[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true, type:{ steps:true}}]')		
+	}
+	if($("#chart").val()=="Interactive"){
+		$("#data").val("[[ 'a', 30, 90, 'd', 'e', 110],[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true,type:{ interactive:true}}]')		
+	}
+	if($("#chart").val()=="Scatter"){
+		$("#data").val("[[ 'a', 30, 90, 'd', 'e', 110],[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true,type:{ points:true}}]')		
+	}	
+	plot();	
+}
+</script>
+	<style type="text/css">
+		* {
+		  font-family: sans-serif;
+		}
+		
+		body
+		{
+			padding: 0 1em 1em 1em;
+		}
+		
+		div.graph
+		{
+			width: 400px;
+			height: 300px;
+			float: left;
+			border: 1px dashed gainsboro;
+		}
+		
+		label
+		{
+			display: block;
+			margin-left: 400px;
+			padding-left: 1em;
+		}
+		
+		h2
+		{
+			padding-top: 1em;
+			margin-bottom: 0;
+			clear: both;
+			color: #ccc;
+		}
+		
+		code
+		{
+			display: block;
+			background-color: #eee;
+			border: 1px dashed #999;
+			padding: 0.5em;
+			margin: 0.5em;
+			color: #666;
+			font-size: 10pt;
+		}
+		
+		code b
+		{
+			color: black;
+		}
+		
+		ul
+		{
+			font-size: 10pt;
+		}
+		
+		ul li
+		{
+			margin-bottom: 0.5em;
+		}
+		
+		ul.options li
+		{
+			list-style: none;
+			margin-bottom: 1em;
+		}
+		
+		ul li i
+		{
+			color: #999;
+		}
+	</style>
+ </head>
+    <body>
+    <div id="graph1" class="graph"></div>
+    Select Chart Type:
+    <select id="chart" onchange="loadvalues()">
+    		<option id="Bar">Bar</option>
+    		<option id="Pie">Pie</option>
+    		<option id="Line">Line</option>
+    		<option id="Fill">Fill</option>
+    		<option id="Step">Step</option>
+    		<option id="Interactive">Interactive</option>
+    		<option id="Scatter">Scatter</option>
+    		<option id="StackedBar">StackedBar</option>
+    </select> 
+    Target Div : <input id="targetdiv" type="text" value="graph1"/>
+    <br> 
+    Data : <textarea id="data" rows="8">[[9,7,8,3,6],[3,8,5,13,7],[13,4,'a',5,9]]</textarea> 
+    Options : <textarea id="options" rows="8">[{bars : {	show : true,barWidth: 0.8,align: "center",horizontal: false}}]</textarea> 
+    <input type="submit" value="PLOT" onclick="plot()" />
+ </body>
+
+</html>
+

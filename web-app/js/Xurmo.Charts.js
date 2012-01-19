@@ -577,6 +577,7 @@ TURFINSIGHT.Chart.LineChart = function() {
 
 }
 
+
 //Stacked Chart Wrapper Object
 
 TURFINSIGHT.Chart.StackedBarChart = function() {
