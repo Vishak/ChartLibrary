@@ -16,7 +16,7 @@
     <script type="text/javascript" src="${resource(dir:'js', file:'jquery.flot.stack.js')}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-testDrawBarChartByFlot();
+//testDrawBarChartByFlot();
 //testDrawPieChartByFlot();
 //testDrawLineChartByFlot();
 //testDrawStackedBarChartByFlot();
