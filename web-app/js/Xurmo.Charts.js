@@ -9,7 +9,7 @@ TURFINSIGHT.Chart.Flot = function() {
 	this.plotMethod = $.plot
 
 	// Pie Chart Transformation and Plot Method
-	
+
 	this.drawPieChart = function(chart) {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
@@ -49,8 +49,8 @@ TURFINSIGHT.Chart.Flot = function() {
 
 	}
 
-	//Line Chart Transformation and Plot Method
-	
+	// Line Chart Transformation and Plot Method
+
 	this.drawLineChart = function(chart) {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
@@ -73,13 +73,13 @@ TURFINSIGHT.Chart.Flot = function() {
 			chart.legend = newLegends
 		}
 
-		if(chart.labels == undefined) {
+		if (chart.labels == undefined) {
 			chart.labels = []
 			for (i = 0; i < chart.data[0].length; i++) {
 				chart.labels[i] = "Label" + (i + 1)
 			}
 		}
-		
+
 		chart.ticks = []
 		for (i = 0; i < chart.labels.length; i++) {
 			var eachTick = []
@@ -99,10 +99,10 @@ TURFINSIGHT.Chart.Flot = function() {
 			}
 		}
 
-		if(chart.options.type==undefined){
+		if (chart.options.type == undefined) {
 			chart.options.type = {}
 		}
-		
+
 		chart.options.type.lines = true
 
 		if (chart.options.type.interactive) {
@@ -221,9 +221,9 @@ TURFINSIGHT.Chart.Flot = function() {
 		this.plotMethod(targetDiv, formattedData, formattedOptions);
 
 	}
-	
+
 	// Bar Chart Transformation and Plot Method
-	
+
 	this.drawBarChart = function(chart) {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
@@ -263,7 +263,6 @@ TURFINSIGHT.Chart.Flot = function() {
 			for (i = 0; i < chart.data[0].length; i++) {
 				barData[i] = [ chart.data[0][i], chart.data[j + 1][i] ]
 			}
-			var ink = barData
 			seriesData[j] = barData
 		}
 
@@ -282,7 +281,8 @@ TURFINSIGHT.Chart.Flot = function() {
 					align : chart.options.bars.align,
 					series_spread : true,
 					horizontal : chart.options.bars.horizontal
-				}
+				},
+				lines : {show:chart.options.lines.show}
 			},
 			legend : {
 				show : true
@@ -296,9 +296,10 @@ TURFINSIGHT.Chart.Flot = function() {
 		this.plotMethod(targetDiv, formattedData, formattedOptions);
 	}
 
-	//Stacked Chart Transformation and Plot Method
-	
+	// Stacked Chart Transformation and Plot Method
+
 	this.drawStackedBarChart = function(chart) {
+
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
 		var formattedOptions
@@ -326,7 +327,6 @@ TURFINSIGHT.Chart.Flot = function() {
 			}
 		}
 
-
 		var stackedBarTicks = []
 		for (i = 0; i < chart.labels.length; i++) {
 			stackedBarTicks[i] = [ i + 1, chart.labels[i] ]
@@ -337,7 +337,6 @@ TURFINSIGHT.Chart.Flot = function() {
 			for (i = 0; i < chart.data[0].length; i++) {
 				barData[i] = [ chart.data[0][i], chart.data[j + 1][i] ]
 			}
-			var ink = barData
 			seriesData[j] = barData
 		}
 
@@ -368,9 +367,81 @@ TURFINSIGHT.Chart.Flot = function() {
 		}
 		this.plotMethod(targetDiv, formattedData, formattedOptions);
 	}
+
+	
+	
+	this.drawBubbleChart = function(chart) {
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
+		var seriesData = []
+		var dataLength = chart.data.length/2;
+		dataLength = Math.floor(dataLength)
+
+		if (chart.legends == undefined) {
+			chart.legends = []
+			for (i = 0; i < dataLength; i++) {
+				chart.legends[i] = "Series" + (i + 1)
+			}
+		}
+
+		if (chart.legends.length < dataLength) {
+			for (i = 0; i < dataLength; i++) {
+				if (chart.legends[i] == undefined) {
+					chart.legends[i] = "Series" + (i + 1)
+				}
+			}
+		}
+
+		if (chart.labels == undefined) {
+			chart.labels = []
+			for (i = 0; i < chart.data[0].length; i++) {
+				chart.labels[i] = "Label" + (i + 1)
+			}
+		}
+
+		var stackedBarTicks = []
+		for (i = 0; i < chart.labels.length; i++) {
+			stackedBarTicks[i] = [ i + 1, chart.labels[i] ]
+		}
+
+		
+		for(j=0; j< dataLength; j++){
+			var barData = []
+			for (i = 0; i < chart.data[j].length; i++) {
+				barData[i] = [ chart.data[0][i], chart.data[(j*2)+1][i], chart.data[(j*2)+2][i] ]
+			}
+			seriesData[j] = barData
+		}
+		
+		for (i = 0; i < dataLength; i++) {
+			formattedData[i] = {
+				label : chart.legends[i],
+				data : seriesData[i]
+			}
+		}
+
+		formattedOptions = {
+			series : {
+					bubble : true,
+					points : { show:true},
+        			lines : {show:chart.options.series.lines.show}
+			},
+            xaxis: {  
+                     autoscaleMargin: chart.options.xaxis.autoscaleMargin
+                     } ,
+            yaxis: { 
+                     autoscaleMargin: chart.options.yaxis.autoscaleMargin
+                   },
+            grid: { tickColor: chart.options.grid.tickColor}, 
+            shadowSize: chart.options.shadowSize
+                 };
+        
+		$.plot(targetDiv, formattedData,formattedOptions);
+	}
 }
 
- //JqPlot Library Wrapper Object
+// JqPlot Library Wrapper Object
 
 TURFINSIGHT.Chart.JqPlot = function() {
 	this.type = 'JqPlot'
@@ -384,7 +455,7 @@ TURFINSIGHT.Chart.JqPlot = function() {
 
 }
 
-  //BootStrap Code
+		// BootStrap Code
 
 		(function() {
 			TURFINSIGHT.Chart.ChartFactory = function() {
@@ -393,9 +464,9 @@ TURFINSIGHT.Chart.JqPlot = function() {
 			}
 			TURFINSIGHT.Chart.ChartFactory.getInstance = function() {
 				TURFINSIGHT.Chart.ChartFactory.library = 'flot' // This Will Be
-																// Read as Part
-																// Of
-																// Configuration
+				// Read as Part
+				// Of
+				// Configuration
 				if (!TURFINSIGHT.Chart.ChartFactory.instance) {
 					switch (TURFINSIGHT.Chart.ChartFactory.library) {
 					case 'flot':
@@ -412,8 +483,8 @@ TURFINSIGHT.Chart.JqPlot = function() {
 					.getInstance()
 		}());
 
- // Check if a List Contains all Numbers
-		
+// Check if a List Contains all Numbers
+
 TURFINSIGHT.Chart.isAllNumbers = function(list) {
 	var result = true
 	for (i = 0; i < list.length; i++) {
@@ -425,7 +496,7 @@ TURFINSIGHT.Chart.isAllNumbers = function(list) {
 	return result
 }
 
-//Check if a list contain all Text
+// Check if a list contain all Text
 
 TURFINSIGHT.Chart.isAllText = function(list) {
 	var result = true
@@ -438,7 +509,7 @@ TURFINSIGHT.Chart.isAllText = function(list) {
 	return result
 }
 
-//Get Frequency Map of a List
+// Get Frequency Map of a List
 
 TURFINSIGHT.Chart.getFrequencyOfColoumnElements = function(list) {
 	jsMap.clear()
@@ -461,7 +532,7 @@ TURFINSIGHT.Chart.mergeSingleDimArrays = function(array1, array2) {
 	return mergedArray
 }
 
-//Pie Chart Wrapper Object
+// Pie Chart Wrapper Object
 
 TURFINSIGHT.Chart.PieChart = function() {
 
@@ -659,8 +730,7 @@ TURFINSIGHT.Chart.LineChart = function() {
 
 }
 
-
-//Stacked Chart Wrapper Object
+// Stacked Chart Wrapper Object
 
 TURFINSIGHT.Chart.StackedBarChart = function() {
 
@@ -779,14 +849,13 @@ TURFINSIGHT.Chart.StackedBarChart = function() {
 		}
 		if (this.targetDiv != undefined && this.data != undefined
 				&& this.options != undefined) {
-			TURFINSIGHT.Chart.ChartLibrary.drawStackedBarChart(
-					this)
+			TURFINSIGHT.Chart.ChartLibrary.drawStackedBarChart(this)
 		}
 	}
 
 }
 
-//Bar Chart Wrapper Object
+// Bar Chart Wrapper Object
 
 TURFINSIGHT.Chart.BarChart = function() {
 
@@ -930,9 +999,7 @@ TURFINSIGHT.Chart.XYScatterChart = function() {
 
 	this.setData = function(data) {
 		this.data = null
-		if (data.length == 1) {
-			this.data = processDataWithOneColoumn(data[0])
-		} else if (data.length >= 2) {
+		if (data.length >= 2) {
 			this.data = processDataWithMultipleColoumns.call(this, data)
 		}
 	}
@@ -968,22 +1035,27 @@ TURFINSIGHT.Chart.XYScatterChart = function() {
 
 		if (TURFINSIGHT.Chart.isAllNumbers(coloumns[0])) {
 			for (i = 0; i < largestColoumnLength; i++) {
-				xAxis[i] = i + 1
+				if (coloumns[0][i])
+					xAxis[i] = coloumns[0][i]
+				else
+					xAxis[i] = 0
 			}
-			this.setLabels(xAxis)
-		} else {
-			var labels = []
-			for (i = 0; i < largestColoumnLength; i++) {
-				xAxis[i] = i + 1
-				if (coloumns[0][i] == undefined) {
-					labels[i] = "Label " + i
-				} else {
-					labels[i] = coloumns[0][i]
-				}
-			}
-			this.setLabels(labels)
 			startColOfNumericdata = 1
+			this.setLabels(xAxis)
 		}
+		// else {
+		// var labels = []
+		// for (i = 0; i < largestColoumnLength; i++) {
+		// xAxis[i] = i + 1
+		// if (coloumns[0][i] == undefined) {
+		// labels[i] = "Label " + i
+		// } else {
+		// labels[i] = coloumns[0][i]
+		// }
+		// }
+		// this.setLabels(labels)
+		// startColOfNumericdata = 1
+		// }
 		resultData[0] = xAxis
 		for (i = startColOfNumericdata; i < coloumns.length; i++) {
 			resultData[i + 1 - startColOfNumericdata] = []
@@ -1022,26 +1094,163 @@ TURFINSIGHT.Chart.XYScatterChart = function() {
 			TURFINSIGHT.Chart.ChartLibrary.drawXYScatterChart(this)
 		}
 	}
+}
 
-/** Testing Functions  **/
+TURFINSIGHT.Chart.BubbleChart = function() {
 
-/* Flot Library*/
+	this.success = true;
+	this.data = []
 
-//Pie Chart Plotting Test
+	this.setTargetDiv = function(targetDiv) {
+		this.targetDiv = targetDiv;
+	}
 
+	this.setLegend = function(legend) {
+		this.legend = legend
+	}
+
+	this.setLabels = function(labels) {
+		this.labels = labels
+	}
+
+	this.setData = function(data) {
+		this.data = null
+		if (data.length%2==0) {
+			this.data = processDataWithEvenNumberOfColoumns.call(this, data)
+		}
+		else{
+			this.data = processDataWithOddNumberOfColoumns.call(this, data)
+		}
+	}
+
+	var processDataWithEvenNumberOfColoumns = function(coloumns) {
+
+		var largestColoumnLength = 0;
+		var xAxis = []
+		var resultData = []
+		var startColOfNumericdata = 0;
+		for (i = 0; i < coloumns.length; i++) {
+			if (coloumns[i].length > largestColoumnLength) {
+				largestColoumnLength = coloumns[i].length
+			}
+		}
+
+		if (TURFINSIGHT.Chart.isAllNumbers(coloumns[0])) {
+			for (i = 0; i < largestColoumnLength; i++) {
+					xAxis[i] = i+1
+			}
+			startColOfNumericdata = 0
+			this.setLabels(xAxis)
+		}
+
+		resultData[0] = xAxis
+		for (i = startColOfNumericdata; i < coloumns.length; i++) {
+			resultData[i + 1] = []
+			for (j = 0; j < largestColoumnLength; j++) {
+				if (coloumns[i][j] != undefined && !isNaN(coloumns[i][j])) {
+					resultData[i + 1][j] = coloumns[i][j]
+				} else {
+					resultData[i + 1][j] = 0
+				}
+			}
+		}
+		return resultData
+	}
+	var processDataWithOddNumberOfColoumns = function(coloumns) {
+
+		var largestColoumnLength = 0;
+		var xAxis = []
+		var resultData = []
+		var startColOfNumericdata = 0;
+		var linearArray = []
+		var singletonArray = []
+		for (i = 0; i < coloumns.length; i++) {
+			if (coloumns[i].length > largestColoumnLength) {
+				largestColoumnLength = coloumns[i].length
+			}
+		}
+
+		if (TURFINSIGHT.Chart.isAllNumbers(coloumns[0])) {
+			for (i = 0; i < largestColoumnLength; i++) {
+				if (coloumns[0][i])
+					xAxis[i] = coloumns[0][i]
+				else
+					xAxis[i] = 0
+			}
+			startColOfNumericdata = 1
+			this.setLabels(xAxis)
+		}
+		if(coloumns.length==1){
+			for(k=0;k<xAxis.length;k++){
+				linearArray[k] = k+1;
+			}
+			resultData[0] = linearArray;
+			resultData[1] = xAxis;
+			for(k=0;k<xAxis.length;k++){
+				singletonArray[k] = 1;
+			}
+			resultData[2] = singletonArray;
+			return resultData
+		}
+		resultData[0] = xAxis
+			
+		for (i = startColOfNumericdata; i < coloumns.length; i++) {
+			resultData[i + 1 - startColOfNumericdata] = []
+			for (j = 0; j < largestColoumnLength; j++) {
+				if (coloumns[i][j] != undefined && !isNaN(coloumns[i][j])) {
+					resultData[i + 1 - startColOfNumericdata][j] = coloumns[i][j]
+				} else {
+					resultData[i + 1 - startColOfNumericdata][j] = 0
+				}
+			}
+		}
+		return resultData
+	}
+
+	this.setLabelsAndValues = function(labels, values) {
+		this.setLabels(labels)
+		this.setData(values)
+	}
+
+	this.setOptions = function(options) {
+		this.options = options;
+	}
+
+	this.draw = function(targetDiv, data, options) {
+		if (targetDiv != undefined) {
+			this.setTargetDiv(targetDiv)
+		}
+		if (data != undefined) {
+			this.setData(data)
+		}
+		if (options != undefined) {
+			this.setOptions(options)
+		}
+		if (this.targetDiv != undefined && this.data != undefined
+				&& this.options != undefined) {
+			TURFINSIGHT.Chart.ChartLibrary.drawBubbleChart(this)
+		}
+	}
+}
+
+/** Testing Functions * */
+
+/* Flot Library */
+
+// Pie Chart Plotting Test
 var testDrawPieChartByFlot = function() {
 	var pieChart = new TURFINSIGHT.Chart.PieChart();
 	pieChart.setTargetDiv("graph1")
 	/*
-	 pieChart.setLegendAndValues([
-	 "Series1","Series2","Series3","Series4","Series5","Series6"],[ 10, 30,
-	 90, 70, 80, 110])
-    */
+	 * pieChart.setLegendAndValues([
+	 * "Series1","Series2","Series3","Series4","Series5","Series6"],[ 10, 30,
+	 * 90, 70, 80, 110])
+	 */
 	pieChart
 			.setData([
-			 [ "Series1", "Series2", "Series3", "Series4", "Series5","Series6" ], 
-			 [ 10, 30, 90, 70, 80, 110 ]
-			 // [ 23 ,34, 56, 67, 87, 90]
+					[ "Series1", "Series2", "Series3", "Series4", "Series5",
+							"Series6" ], [ 10, 30, 90, 70, 80, 110 ]
+			// [ 23 ,34, 56, 67, 87, 90]
 			]);
 
 	pieChart.setOptions({
@@ -1059,25 +1268,18 @@ var testDrawPieChartByFlot = function() {
 	pieChart.draw()
 }
 
-//Line Chart Plotting Test
+// Line Chart Plotting Test
 
 var testDrawLineChartByFlot = function() {
 	var lineChart = new TURFINSIGHT.Chart.LineChart();
 	lineChart.setTargetDiv("graph1")
 	lineChart.setLegend([ 'a1' ])
 	/*
-	  lineChart.setLabelsAndValues(
-	  [ 'a', 30, 90, 'd', 'e', 110],[
-	  [ 100, 30,90, 10, 50, 110],
-	  [ 23 ,34, 56, 67, 87, 90],
-	  [ 2 ,15, 20, 50, 85, 150]
-	  ])
+	 * lineChart.setLabelsAndValues( [ 'a', 30, 90, 'd', 'e', 110],[ [ 100,
+	 * 30,90, 10, 50, 110], [ 23 ,34, 56, 67, 87, 90], [ 2 ,15, 20, 50, 85, 150] ])
 	 */
-	lineChart.setData([
-	        [ 'a', 30, 90, 'd', 'e', 110 ],
-			[ 23, 34, 56, 67, 87, 90 ],
-			[ 2, 15, 20, 50, 85, 150 ]
-	        ]);
+	lineChart.setData([ [ 'a', 30, 90, 'd', 'e', 110 ],
+			[ 23, 34, 56, 67, 87, 90 ], [ 2, 15, 20, 50, 85, 150 ] ]);
 	lineChart.setOptions({
 		legend : true,
 		hoverable : true,
@@ -1096,19 +1298,15 @@ var testDrawLineChartByFlot = function() {
 	lineChart.draw()
 }
 
-//Stacked Chart Plotting Test
+// Stacked Chart Plotting Test
 
 var testDrawStackedBarChartByFlot = function() {
 	var stackedBarChart = new TURFINSIGHT.Chart.StackedBarChart();
 
 	stackedBarChart.setTargetDiv("graph1")
-	stackedBarChart.setLegend(['Legend1'])
-	stackedBarChart.setData([ 
-	        [ 2, 4, 5, 'w', 'z'],
-	        [ 3, 'w', 5, 13, 7 ],
-			[ 6, 7, 2, 8, 16 ],
-			[ 16, 4, 12, 4, 9 ]
-	        ]);
+	stackedBarChart.setLegend([ 'Legend1' ])
+	stackedBarChart.setData([ [ 2, 4, 5, 'w', 'z' ], [ 3, 'w', 5, 13, 7 ],
+			[ 6, 7, 2, 8, 16 ], [ 16, 4, 12, 4, 9 ] ]);
 	stackedBarChart.setOptions({
 		stack : 0,
 		lines : {
@@ -1126,17 +1324,14 @@ var testDrawStackedBarChartByFlot = function() {
 	stackedBarChart.draw()
 }
 
-//Bar Chart Plotting Test
+// Bar Chart Plotting Test
 
 var testDrawBarChartByFlot = function() {
 	var barChart = new TURFINSIGHT.Chart.BarChart();
 	barChart.setTargetDiv("graph1")
-	barChart.setLegend(['Legend'])
-	barChart.setData([
-	        [ 9, 7, 8, 3, 6 ],
-	        [ 3, 8, 5, 13, 7 ],
-			[ 13, 4, 'a', 5, 9 ]
-	        ]);
+	barChart.setLegend([ 'Legend' ])
+	barChart.setData([ [ 9, 7, 8, 3, 6 ], [ 3, 8, 5, 13, 7 ],
+			[ 13, 4, 'a', 5, 9 ] ]);
 
 	barChart.setOptions({
 		bars : {
@@ -1152,19 +1347,13 @@ var testDrawBarChartByFlot = function() {
 
 /* JQPlot Library */
 
-//Pie Chart Plotting Test
-
+// Pie Chart Plotting Test
 var testDrawPieChartByJqPlot = function() {
 	var pieChart = new TURFINSIGHT.Chart.PieChart();
 	pieChart.setTargetDiv("graph1")
-	pieChart.setData([ 
-	        [ 'Heavy Industry', 12 ],
-	        [ 'Retail', 9 ],
-			[ 'Light Industry', 14 ],
-			[ 'Out of home', 16 ],
-			[ 'Commuting', 7 ],
-			[ 'Orientation', 9 ]
-	        ]);
+	pieChart.setData([ [ 'Heavy Industry', 12 ], [ 'Retail', 9 ],
+			[ 'Light Industry', 14 ], [ 'Out of home', 16 ],
+			[ 'Commuting', 7 ], [ 'Orientation', 9 ] ]);
 
 	pieChart.setOptions({
 		seriesDefaults : {
@@ -1181,4 +1370,3 @@ var testDrawPieChartByJqPlot = function() {
 
 	pieChart.draw()
 }
-

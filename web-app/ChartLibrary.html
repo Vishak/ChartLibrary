@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Flot Pie Examples</title>
 	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="js/bubble/jquery-1.6.2.min.js"></script>
 	<script type="text/javascript" src="js/jquery.flot.js"></script>
     <script type="text/javascript" src="js/jquery.flot.pie.js"></script>
     <script type="text/javascript" src="js/jquery.jqplot.js"></script>
@@ -13,14 +13,21 @@
     <script type="text/javascript" src="js/Xurmo.Charts.js"></script>
     <script type="text/javascript" src="js/jquery.flot.threshold.js"></script>
     <script type="text/javascript" src="js/jquery.flot.stack.js"></script>
+<!--     <script type="text/javascript" src="js/bubble/jquery.flot.js"></script> -->
+    <script type="text/javascript" src="js/bubble/jquery.flot.bubble.js"></script>
 <script type="text/javascript">
 var BarChart = new TURFINSIGHT.Chart.BarChart();
 var StackedBarChart = new TURFINSIGHT.Chart.StackedBarChart();
 var PieChart = new TURFINSIGHT.Chart.PieChart();
 var LineChart = new TURFINSIGHT.Chart.LineChart();
+var XYScatterChart = new TURFINSIGHT.Chart.XYScatterChart();
+var BubbleChart = new TURFINSIGHT.Chart.BubbleChart();
 $(document).ready(function(){
+loadvalues();
 plot();
 });
+var d1 = [[[1, 3, 10],[2,15,10],[1,22,13],[3,36,9]],[[2, 2, 10], [4, 8, 2], [6, 5, 2], [8, 0, 4], [9, 50, 30]]]
+var d2 = [[2, 2, 10], [4, 8, 2], [6, 5, 2], [8, 0, 4], [9, 50, 30]]
 function plot(){
 	var chart = $("#chart").val();
 	var targetdiv = $("#targetdiv").val()
@@ -37,7 +44,7 @@ eval(chart+"Chart").draw()
 function loadvalues(){
 	if($("#chart").val()=="Bar"){
 		$("#data").val("[[9,7,8,3,6],[3,8,5,13,7],[13,4,'a',5,9]]")
-		$("#options").val('[{bars : {	show : true,barWidth: 0.8,align: "center",horizontal: false}}]')		
+		$("#options").val('[{bars : {	show : true,barWidth: 0.8,align: "center"},lines:{show:false},legend:{show:false}}]')		
 	}	
 	if($("#chart").val()=="Pie"){
 		$("#data").val('[[ "Series1","Series2","Series3","Series4","Series5","Series6"],[ 10, 30, 90, 70, 80, 110]]')
@@ -67,6 +74,14 @@ function loadvalues(){
 		$("#data").val("[[ 'a', 30, 90, 'd', 'e', 110],[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
 		$("#options").val('[{legend : true,hoverable: true,clickable: true,type:{ points:true}}]')		
 	}	
+	if($("#chart").val()=="XYScatter"){
+		$("#data").val("[[ 23 ,34, 56, 67, 87, 90],[ 2 ,15, 20, 50, 85, 150]]")
+		$("#options").val('[{legend : true,hoverable: true,clickable: true,type:{ points:true}}]')		
+	}
+	if($("#chart").val()=="Bubble"){
+		$("#data").val("[[9,7,8,3,6],[3,8,5,13,7],[13,4,8,5,9]]")
+		$("#options").val("[{series : {lines : {show:false}},xaxis: {autoscaleMargin: true} ,yaxis: {autoscaleMargin: true},grid: {tickColor: '#000'},shadowSize: 3}]")		
+	}	
 	plot();	
 }
 </script>
@@ -82,8 +97,8 @@ function loadvalues(){
 		
 		div.graph
 		{
-			width: 400px;
-			height: 300px;
+			width: 600px;
+			height: 500px;
 			float: left;
 			border: 1px dashed gainsboro;
 		}
@@ -146,18 +161,20 @@ function loadvalues(){
     Select Chart Type:
     <select id="chart" onchange="loadvalues()">
     		<option id="Bar">Bar</option>
+    		<option id="Bubble">Bubble</option>
     		<option id="Pie">Pie</option>
     		<option id="Line">Line</option>
     		<option id="Fill">Fill</option>
     		<option id="Step">Step</option>
     		<option id="Interactive">Interactive</option>
     		<option id="Scatter">Scatter</option>
+    		<option id="XYScatter">XYScatter</option>
     		<option id="StackedBar">StackedBar</option>
     </select> 
     Target Div : <input id="targetdiv" type="text" value="graph1"/>
     <br> 
-    Data : <textarea id="data" rows="8">[[9,7,8,3,6],[3,8,5,13,7],[13,4,'a',5,9]]</textarea> 
-    Options : <textarea id="options" rows="8">[{bars : {	show : true,barWidth: 0.8,align: "center",horizontal: false}}]</textarea> 
+    Data : <textarea id="data" rows="8"></textarea> 
+    Options : <textarea id="options" rows="8"></textarea> 
     <input type="submit" value="PLOT" onclick="plot()" />
  </body>
 
