@@ -282,7 +282,9 @@ TURFINSIGHT.Chart.Flot = function() {
 					series_spread : true,
 					horizontal : chart.options.bars.horizontal
 				},
-				lines : {show:chart.options.lines.show}
+				lines : {
+					show : chart.options.lines.show
+				}
 			},
 			legend : {
 				show : true
@@ -368,14 +370,12 @@ TURFINSIGHT.Chart.Flot = function() {
 		this.plotMethod(targetDiv, formattedData, formattedOptions);
 	}
 
-	
-	
 	this.drawBubbleChart = function(chart) {
 		var formattedData = []
 		var targetDiv = $('#' + chart.targetDiv)
 		var formattedOptions
 		var seriesData = []
-		var dataLength = chart.data.length/2;
+		var dataLength = chart.data.length / 2;
 		dataLength = Math.floor(dataLength)
 
 		if (chart.legends == undefined) {
@@ -405,15 +405,15 @@ TURFINSIGHT.Chart.Flot = function() {
 			stackedBarTicks[i] = [ i + 1, chart.labels[i] ]
 		}
 
-		
-		for(j=0; j< dataLength; j++){
+		for (j = 0; j < dataLength; j++) {
 			var barData = []
 			for (i = 0; i < chart.data[j].length; i++) {
-				barData[i] = [ chart.data[0][i], chart.data[(j*2)+1][i], chart.data[(j*2)+2][i] ]
+				barData[i] = [ chart.data[0][i], chart.data[(j * 2) + 1][i],
+						chart.data[(j * 2) + 2][i] ]
 			}
 			seriesData[j] = barData
 		}
-		
+
 		for (i = 0; i < dataLength; i++) {
 			formattedData[i] = {
 				label : chart.legends[i],
@@ -423,21 +423,27 @@ TURFINSIGHT.Chart.Flot = function() {
 
 		formattedOptions = {
 			series : {
-					bubble : true,
-					points : { show:true},
-        			lines : {show:chart.options.series.lines.show}
+				bubble : true,
+				points : {
+					show : true
+				},
+				lines : {
+					show : chart.options.series.lines.show
+				}
 			},
-            xaxis: {  
-                     autoscaleMargin: chart.options.xaxis.autoscaleMargin
-                     } ,
-            yaxis: { 
-                     autoscaleMargin: chart.options.yaxis.autoscaleMargin
-                   },
-            grid: { tickColor: chart.options.grid.tickColor}, 
-            shadowSize: chart.options.shadowSize
-                 };
-        
-		$.plot(targetDiv, formattedData,formattedOptions);
+			xaxis : {
+				autoscaleMargin : chart.options.xaxis.autoscaleMargin
+			},
+			yaxis : {
+				autoscaleMargin : chart.options.yaxis.autoscaleMargin
+			},
+			grid : {
+				tickColor : chart.options.grid.tickColor
+			},
+			shadowSize : chart.options.shadowSize
+		};
+
+		this.plotMethod(targetDiv, formattedData, formattedOptions);
 	}
 }
 
@@ -1115,12 +1121,44 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 
 	this.setData = function(data) {
 		this.data = null
-		if (data.length%2==0) {
-			this.data = processDataWithEvenNumberOfColoumns.call(this, data)
+		this.data = processData.call(this, data)
+		//		if (data.length%2==0) {
+		//			this.data = processDataWithEvenNumberOfColoumns.call(this, data)
+		//		}
+		//		else{
+		//			this.data = processDataWithOddNumberOfColoumns.call(this, data)
+		//		}
+	}
+
+	var processData = function(columns) {
+		var xAxis = []
+		var resultdata = []
+		var singletonArray = []
+		var start
+		for (i = 0; i < columns[1][0].length; i++) {
+			singletonArray[i] = 2
 		}
-		else{
-			this.data = processDataWithOddNumberOfColoumns.call(this, data)
+		if (columns[0].length > 2 && columns[0][0] != undefined) {
+			xAxis = columns[0]
+			start = 1
+		} else {
+			for (i = 0; i < columns[1][0].length; i++){
+				xAxis[i] = i + 1
+			}
+			start=0
 		}
+		resultdata[0] = xAxis
+		var count=1
+		for (i = start; i < columns.length; i++) {
+			if (columns[i].length == 1) {
+				resultdata[count++] = columns[i][0]
+				resultdata[count++] = singletonArray
+			} else if (columns[i].length == 2) {
+				resultdata[count++] = columns[i][0]
+				resultdata[count++] = columns[i][1]
+			}
+		}
+		return cleanData.call(this,resultdata)
 	}
 
 	var processDataWithEvenNumberOfColoumns = function(coloumns) {
@@ -1137,7 +1175,7 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 
 		if (TURFINSIGHT.Chart.isAllNumbers(coloumns[0])) {
 			for (i = 0; i < largestColoumnLength; i++) {
-					xAxis[i] = i+1
+				xAxis[i] = i + 1
 			}
 			startColOfNumericdata = 0
 			this.setLabels(xAxis)
@@ -1156,7 +1194,7 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 		}
 		return resultData
 	}
-	var processDataWithOddNumberOfColoumns = function(coloumns) {
+	var cleanData = function(coloumns) {
 
 		var largestColoumnLength = 0;
 		var xAxis = []
@@ -1180,20 +1218,20 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 			startColOfNumericdata = 1
 			this.setLabels(xAxis)
 		}
-		if(coloumns.length==1){
-			for(k=0;k<xAxis.length;k++){
-				linearArray[k] = k+1;
+		if (coloumns.length == 1) {
+			for (k = 0; k < xAxis.length; k++) {
+				linearArray[k] = k + 1;
 			}
 			resultData[0] = linearArray;
 			resultData[1] = xAxis;
-			for(k=0;k<xAxis.length;k++){
+			for (k = 0; k < xAxis.length; k++) {
 				singletonArray[k] = 1;
 			}
 			resultData[2] = singletonArray;
 			return resultData
 		}
 		resultData[0] = xAxis
-			
+
 		for (i = startColOfNumericdata; i < coloumns.length; i++) {
 			resultData[i + 1 - startColOfNumericdata] = []
 			for (j = 0; j < largestColoumnLength; j++) {
