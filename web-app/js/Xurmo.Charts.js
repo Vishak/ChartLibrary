@@ -3,7 +3,49 @@ TURFINSIGHT.Chart = TURFINSIGHT.Chart || {}
 var jsMap = new TURF.Util.KeyValueStore();
 
 // Flot Library Wrapper Object
+TURFINSIGHT.Chart.JqPlot = function(){
+	this.type = 'jqPlot'
+	this.plotMethod = $.plot
+	this.drawPieChart = function(chart) {
+		var formattedData = []
+		var targetDiv = $('#' + chart.targetDiv)
+		var formattedOptions
 
+		for (i = 0; i < chart.data[0].length; i++) {
+			formattedData[i] = {
+				label : chart.data[0][i],
+				data : chart.data[1][i]
+			}
+		}
+
+		formattedOptions = {
+			series : {
+				pie : {
+					show : true,
+					radius : chart.options.radius,
+					label : chart.options.label,
+					innerRadius : chart.options.innerRadius,
+				}
+			},
+			legend : {
+				show : chart.options.legend
+			},
+			grid : {
+				clickable : chart.options.clickable,
+				hoverable : chart.options.hoverable
+			}
+		}
+
+		formattedOptions.series.pie.label.formatter = function(label, series) {
+			return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'
+					+ label + '<br/>' + Math.round(series.percent) + '%</div>';
+		}
+
+		this.plotMethod(targetDiv, formattedData, formattedOptions);
+
+	}
+
+}
 TURFINSIGHT.Chart.Flot = function() {
 	this.type = 'Flot'
 	this.plotMethod = $.plot
@@ -1134,10 +1176,13 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 		var xAxis = []
 		var resultdata = []
 		var singletonArray = []
+		var linearArray = []
 		var start
 		for (i = 0; i < columns[1][0].length; i++) {
 			singletonArray[i] = 2
+			linearArray[i] = i+1
 		}
+		if(TURFINSIGHT.Chart.isAllNumbers(columns[0])){
 		if (columns[0].length > 2 && columns[0][0] != undefined) {
 			xAxis = columns[0]
 			start = 1
@@ -1146,6 +1191,11 @@ TURFINSIGHT.Chart.BubbleChart = function() {
 				xAxis[i] = i + 1
 			}
 			start=0
+		}
+		}
+		else{
+			xAxis = linearArray
+			start = 1
 		}
 		resultdata[0] = xAxis
 		var count=1

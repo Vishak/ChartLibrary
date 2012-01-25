@@ -33,13 +33,14 @@ function plot(){
 	var targetdiv = $("#targetdiv").val()
 	var chartdata = $("#data").val()
 	var options = $("#options").val()
+	//var library = $("#chartlibrary").val()
 	if(chart == "Fill" || chart == "Step" || chart == "Interactive" || chart == "Scatter")
 		chart = "Line"
 eval(chart+"Chart").setTargetDiv(targetdiv)
 eval(chart+"Chart").setData(eval(chartdata))
 eval(chart+"Chart").setOptions(eval(options)[0])
 eval(chart+"Chart").draw()
-//eval("testDraw"+chart+"ChartByFlot")(targetdiv,chartdata,options);
+//eval("testDraw"+chart+"ChartBy"+library)(targetdiv,chartdata,options);
 }
 function loadvalues(){
 	if($("#chart").val()=="Bar"){
@@ -160,9 +161,9 @@ function loadvalues(){
     <div id="graph1" class="graph"></div>
     Select Chart Type:
     <select id="chart" onchange="loadvalues()">
+    		<option id="Pie">Pie</option>
     		<option id="Bar">Bar</option>
     		<option id="Bubble">Bubble</option>
-    		<option id="Pie">Pie</option>
     		<option id="Line">Line</option>
     		<option id="Fill">Fill</option>
     		<option id="Step">Step</option>
@@ -170,7 +171,7 @@ function loadvalues(){
     		<option id="Scatter">Scatter</option>
     		<option id="XYScatter">XYScatter</option>
     		<option id="StackedBar">StackedBar</option>
-    </select> 
+    </select>
     Target Div : <input id="targetdiv" type="text" value="graph1"/>
     <br> 
     Data : <textarea id="data" rows="8"></textarea> 
